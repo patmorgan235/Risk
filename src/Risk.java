@@ -8,6 +8,7 @@ public class Risk extends GameEngine{
 	public Risk(){
 		super("Risk",1200,612);
 		
+		setBackground(Color.BLUE.brighter().brighter());
 		DispMap = new Img("RiskMap.png");
 		DispMap.setPosition(100, 100);
 		

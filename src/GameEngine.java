@@ -1,103 +1,96 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 import java.awt.event.*;
 
-/**
- * Write a description of class GameEngine here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
 public class GameEngine extends JPanel implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
-    // instance variables 
-    static int WIDTH = 800;
-    static int HEIGHT = 600;
-
-    JPanel infoPanel = new JPanel();
-    JTextField mouseLoc = new JTextField(6);
-    Point mouse = new Point(0,0);
-
-
-    public GameEngine()
+    private boolean DEBUG = false;
+    protected Point mouse = new Point();
+    JFrame frame;
+    
+    String name ="";
+    int x = 640;
+    int y = 640;
+    
+    public GameEngine(String name, int x, int y)
     {
-        this("", WIDTH, HEIGHT);
-    }
-
-    public GameEngine(String title)
-    {
-        this(title, WIDTH, HEIGHT);
-    }
-
-    public GameEngine(String title, int width, int height)
-    {
-        WIDTH = width;
-        HEIGHT = height;
-        JFrame frame = new JFrame(title);
-        setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        
+    	
+    	this.name = name;
+    	this.x = x;
+    	this.y = y;
+    	
+        setPreferredSize(new Dimension(x,y));
+        setBackground(Color.BLACK);
         addMouseListener(this);
         addMouseMotionListener(this);
-
-        infoPanel.add(new JLabel("Mouse Position"));
-        infoPanel.add(mouseLoc);
-        frame.getContentPane().add(infoPanel, BorderLayout.NORTH);
+        
+        
+        frame = new JFrame("Space Game");
         frame.getContentPane().add(this, BorderLayout.CENTER);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.addKeyListener(this);
         frame.pack();
         frame.setVisible(true);
-        frame.addKeyListener(this);
-        frame.setFocusable( true );
-
-        Timer t = new Timer(5, this);
-        t.start();
     }
-
-    public void keyTyped(KeyEvent key) {}
-
-    public void keyPressed(KeyEvent key) { processKey(key.getKeyCode(), true); }
-
-    public void keyReleased(KeyEvent key) { processKey(key.getKeyCode(), false); }
-
-    public void mouseClicked(MouseEvent mouse) {}
-
-    public void mousePressed(MouseEvent mouse) {}
-
-    public void mouseReleased(MouseEvent mouse) {}
-
-    public void mouseEntered(MouseEvent mouse) {}
-
-    public void mouseExited(MouseEvent mouse) {}
-
-    public void mouseDragged(MouseEvent mouse) {}
-
-    public void mouseMoved(MouseEvent mouse)
+    
+    public void addPanel(JPanel panel, String location)
+    {
+        frame.setVisible(false);
+        frame.getContentPane().add(panel, location);
+        frame.pack();
+        frame.setVisible(true);
+    }
+    
+    public void mouseMoved(MouseEvent mouse) 
     {
         this.mouse = mouse.getPoint();
     }
-
+    public void mouseEntered(MouseEvent mouse) {}
+    public void mouseExited(MouseEvent mouse) {}
+    public void mousePressed(MouseEvent mouse) {}
+    public void mouseReleased(MouseEvent mouse) {}
+    public void mouseClicked(MouseEvent mouse) {}
+    public void mouseDragged(MouseEvent mouse) 
+    {
+        this.mouse = mouse.getPoint();
+    }
+    public void keyTyped(KeyEvent key) {}
+    public void keyPressed(KeyEvent key) 
+    { 
+        processKey(key.getKeyCode(), true);
+    }
+    public void keyReleased(KeyEvent key)
+    {
+        processKey(key.getKeyCode(), false);
+    }
+    
+    public void processKey(int code, boolean pressed)
+    {
+        if(DEBUG) System.out.println(code +":"+ pressed);
+    }
+    
+    public void run()
+    {
+        Timer t = new Timer(5, this);
+        t.start();
+    }
+    
     public void actionPerformed(ActionEvent e)
     {
-        mouseLoc.setText(String.format("(%d,%d)",mouse.x,mouse.y));
         update();
         repaint();
     }
-
+    
+    public void update()
+    {
+    }
+    
+    public void draw(Graphics g)
+    {
+    }
+    
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
         draw(g);
-    }
-
-    public void processKey(int code, boolean pressed)
-    {
-    }
-
-    public void update()
-    {
-    }
-
-    public void draw(Graphics g)
-    {
     }
 }
