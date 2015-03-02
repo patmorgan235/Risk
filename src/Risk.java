@@ -10,6 +10,8 @@ public class Risk extends GameEngine{
 		
 		DispMap = new Img("RiskMap.png");
 		DispMap.setPosition(100, 100);
+		
+		run();
 	}
 	
 	public void update(){
