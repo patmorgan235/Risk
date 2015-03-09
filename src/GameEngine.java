@@ -6,6 +6,7 @@ public class GameEngine extends JPanel implements ActionListener, MouseListener,
 {
     private boolean DEBUG = false;
     protected Point mouse = new Point();
+    JTextField mouseLoc = new JTextField(20);
     JFrame frame;
     
     String name ="";
@@ -25,9 +26,15 @@ public class GameEngine extends JPanel implements ActionListener, MouseListener,
         addMouseMotionListener(this);
         
         
-        frame = new JFrame("Space Game");
+        frame = new JFrame(name);
         frame.getContentPane().add(this, BorderLayout.CENTER);
         frame.addKeyListener(this);
+        
+        JPanel mouseTrack = new JPanel();
+        mouseTrack.add(new JLabel("Mouse: "));
+        mouseTrack.add(mouseLoc);
+        addPanel(mouseTrack,BorderLayout.NORTH);
+        
         frame.pack();
         frame.setVisible(true);
     }
@@ -76,6 +83,7 @@ public class GameEngine extends JPanel implements ActionListener, MouseListener,
     
     public void actionPerformed(ActionEvent e)
     {
+        mouseLoc.setText(String.format("(%d,%d)",mouse.x, mouse.y));
         update();
         repaint();
     }

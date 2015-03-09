@@ -1,0 +1,12 @@
+#BlueJ class context
+comment0.params=
+comment0.target=Risk()
+comment1.params=
+comment1.target=void\ update()
+comment2.params=g
+comment2.target=void\ draw(java.awt.Graphics)
+comment3.params=code\ pressed
+comment3.target=void\ processKey(int,\ boolean)
+comment4.params=args
+comment4.target=void\ main(java.lang.String[])
+numComments=5
