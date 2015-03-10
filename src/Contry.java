@@ -9,14 +9,14 @@ public class Contry
 {
     // instance variables
     String name;
-    Color color;
+    String color;
     int units;
 
 
     /**
      * Constructor for objects of class Contry
      */
-    public Contry(String name, Color color,int units)
+    public Contry(String name, String color,int units)
     {
         this.name = name;
         this.color = color;
