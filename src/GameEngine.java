@@ -29,7 +29,7 @@ public class GameEngine extends JPanel implements ActionListener, MouseListener,
         frame = new JFrame(name);
         frame.getContentPane().add(this, BorderLayout.CENTER);
         frame.addKeyListener(this);
-        
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPanel mouseTrack = new JPanel();
         mouseTrack.add(new JLabel("Mouse: "));
         mouseTrack.add(mouseLoc);
