@@ -10,21 +10,25 @@ public class Contry
     // instance variables
     String name;
     String color;
-    int units;
-
+    int units = 0;
+    int player;
 
     /**
      * Constructor for objects of class Contry
      */
-    public Contry(String name, String color,int units)
+    public Contry(String name, String color, int units)
     {
         this.name = name;
         this.color = color;
         this.units = units;
-        
-
-
     }
-
-
+    
+    public int getUnits(){return units;}
+    
+    public void setUnits(int num){units = num;}
+    
+    public int getPlayer(){return player;}
+    
+    public void setPlayer(int player){this.player = player;}
+    
 }
