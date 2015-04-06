@@ -10,7 +10,7 @@ public class Contry
     // instance variables
     String name;
     String color;
-    int units = 0;
+    int units ;
     int player;
 
     /**
@@ -21,6 +21,7 @@ public class Contry
         this.name = name;
         this.color = color;
         this.units = units;
+        player = -1;
     }
     
     public int getUnits(){return units;}

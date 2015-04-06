@@ -1,8 +1,8 @@
-
+import java.awt.*;
 /**
  * Write a description of class Player here.
  * 
- * @author patric Morgan
+ * @author Patric Morgan
  * @version 3/13/14
  */
 public class Player
@@ -11,13 +11,17 @@ public class Player
 
     int num;
     int units;
+    Color color;
     /**
      * Constructor for objects of class Player
      */
-    public Player(int num, int units)
+    public Player(int num, int units,Color color)
     {
         this.num = num;
         this.units = units;
+        this.color = color;
     }
+    
+    public void setPlayer(int num){this.num = num;}
 
 }
