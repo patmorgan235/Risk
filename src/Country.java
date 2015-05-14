@@ -5,7 +5,7 @@ import java.awt.*;
  * @author Patric Morgan 
  * @version 3/9/15
  */
-public class Contry
+public class Country
 {
     // instance variables
     String name;
@@ -16,11 +16,19 @@ public class Contry
     /**
      * Constructor for objects of class Contry
      */
-    public Contry(String name, String color, int units)
+    public Country(String name, String color, int units)
     {
         this.name = name;
         this.color = color;
         this.units = units;
+        player = -1;
+    }
+    
+    public Country(String name, String color)
+    {
+        this.name = name;
+        this.color = color;
+        units = 10;
         player = -1;
     }
     

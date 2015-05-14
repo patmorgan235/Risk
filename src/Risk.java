@@ -4,16 +4,17 @@ import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.awt.event.*;
 
-@SuppressWarnings("serial")
 public class Risk extends GameEngine{
-    Img DispMap ;
-    Img ColorMap ;
+    Img DispMap ;//Map the player sees
+    Img ColorMap ;//Map of Countries
+    Img MagMap ;// Maginfied Img (bufferdImage.getSubimage()) of the area around the courser
+
     //Player things
     Player[] players;
     int num_players = 2;
     int player = 0;
     //Country HashMap
-    HashMap<String, Contry> countryMap = new HashMap<String, Contry>();
+    HashMap<String, Country> countryMap = new HashMap<String, Country>();
     int curentColor;
     //misc Text Fields
     JTextField countryName = new JTextField(15);
@@ -33,8 +34,8 @@ public class Risk extends GameEngine{
 
     JButton endTurn = new JButton("End Turn");
 
-    Contry attackCounrty;
-    Contry defendCounrty;
+    Country attackCounrty;
+    Country defendCounrty;
 
     public Risk(){
         super("Risk",1050,576);
@@ -61,7 +62,7 @@ public class Risk extends GameEngine{
                     resetAttack();
                     if(isGameOver() == 0){currPlayer.setText("Player 0 Won");}
                     else if(isGameOver() == 1){currPlayer.setText("Player 1 Won");}
-                    
+
                 }
             });
         panel.add(endTurn);
@@ -83,6 +84,7 @@ public class Risk extends GameEngine{
         if(x > 0 && x < imagemap.getWidth() && 
         y > 0 && y < imagemap.getHeight())
         {
+            //ARGB Breckout
             curentColor = imagemap.getRGB(x,y);
             int alpha = curentColor & 0xFF000000;
             int red = curentColor & 0x00FF0000;
@@ -97,16 +99,24 @@ public class Risk extends GameEngine{
             countryColor.setText(clr);
             Color c = new Color(curentColor);
             countryColor.setBackground(c);
-            Contry ctry = countryMap.get(clr);
+            Country ctry = countryMap.get(clr);
 
             updateTextFields(ctry);
 
+            //
+            if(x > 50 && x < imagemap.getWidth()-50 && 
+            y > 50 && y < imagemap.getHeight()-50){
+               
+                
+                MagMap = new Img(imagemap.getSubimage(mouse.x-25, mouse.y-25, 50,50).getScaledInstance(100,100,4));
+                MagMap.setPosition(950,476);
+            }
             //sets attacking and defending counrties on click
             if(Clicked == true){
-                if(players[player] != null){
-                    if(players[player].units > 0){
+                if(players[player] != null ){
+                    if(players[player].units > 0 && ctry !=null){
 
-                        Contry a = ctry;
+                        Country a = ctry;
                         a.setPlayer(player);
                         a.setUnits(a.units+1);
                         countryMap.remove(a.color);
@@ -122,7 +132,6 @@ public class Risk extends GameEngine{
                                 attackingInfo.setText("Attacking Country: "+ attackCounrty.name);
                                 defendingInfo.setText("Defending Country: ");
                             }
-
                         }
                         else{
                             defendCounrty = countryMap.get(clr);
@@ -132,10 +141,7 @@ public class Risk extends GameEngine{
                             }else{
                                 resetAttack();
                             }
-
                         }
-
-                        Clicked = false;
                     }
                 }
             }
@@ -215,7 +221,7 @@ public class Risk extends GameEngine{
 
     }
 
-    public void updateTextFields(Contry ctry){
+    public void updateTextFields(Country ctry){
 
         JTextField playerInfo = new JTextField(50);
 
@@ -237,8 +243,8 @@ public class Risk extends GameEngine{
     }
 
     public int isGameOver(){
-        int count =0;
-        for(Contry country: countryMap.values()){
+        int count = 0;
+        for(Country country: countryMap.values()){
             if(country.player == 0){count++;}
 
         }
@@ -257,7 +263,7 @@ public class Risk extends GameEngine{
 
     public void attack(){
 
-        Contry a = countryMap.get(defendCounrty.color);
+        Country a = countryMap.get(defendCounrty.color);
 
         a.setUnits(defendCounrty.units - 1);
         countryMap.remove(a.color);
@@ -267,15 +273,15 @@ public class Risk extends GameEngine{
     }
 
     public void draw(Graphics g){
-        if(DispMap == null)return;
+        if(DispMap != null)DispMap.draw(g);
+        if(MagMap != null)MagMap.draw(g);
 
-        DispMap.draw(g);
-        if(contorlChanged)changeColors(g);
+        //if(contorlChanged)changeColors(g);
     }
 
     public void changeColors(Graphics g){
         ArrayList<Point> cntColorPoints;
-        for(Contry country: countryMap.values()){
+        for(Country country: countryMap.values()){
             cntColorPoints = ColorMap.getColorCords(country.color);
             for(Point p: cntColorPoints){
                 if(country.player > 0){
@@ -295,58 +301,55 @@ public class Risk extends GameEngine{
 
         //North America
 
-        countryMap.put("FF806E00", new Contry("Alaska","FF806E00", 10));
-        countryMap.put("FF503C27",new Contry("North Canada","FF503C27", 10));
-        countryMap.put("FFFFFF00",new Contry("West Canada","FFFFFF00", 10));
-        countryMap.put("FF949449",new Contry("Central Canada","FF949449", 10));
-        countryMap.put("FFFFE6980",new Contry("East Canada","FFFFE6980", 10));
-        countryMap.put("FFFFDC00",new Contry("Greenland","FFFFDC00", 10));
-        countryMap.put("FF505027",new Contry("West US","FF505027", 10));
-        countryMap.put("FF808000",new Contry("East US","FF808000", 10));
-        countryMap.put("FFFFFF80",new Contry("Mexico","FFFFFF80", 10));
+        countryMap.put("FF806E00", new Country("Alaska","FF806E00", 10));
+        countryMap.put("FF503C27",new Country("North Canada","FF503C27", 10));
+        countryMap.put("FFFFFF00",new Country("West Canada","FFFFFF00", 10));
+        countryMap.put("FF949449",new Country("Central Canada","FF949449", 10));
+        countryMap.put("FFFFE6980",new Country("East Canada","FFFFE6980", 10));
+        countryMap.put("FFFFDC00",new Country("Greenland","FFFFDC00", 10));
+        countryMap.put("FF505027",new Country("West US","FF505027", 10));
+        countryMap.put("FF808000",new Country("East US","FF808000", 10));
+        countryMap.put("FFFFFF80",new Country("Mexico","FFFFFF80", 10));
         //South America
-        countryMap.put("FFFF8080",new Contry("Colombia","FFFF8080", 10));
-        countryMap.put("FF804040",new Contry("Brazill","FF804040", 10));
-        countryMap.put("FF800000",new Contry("Peru","FF05027", 10));
-        countryMap.put("FFFF0000",new Contry("Argenitina","FFFF0000", 10));
+        countryMap.put("FFFF8080",new Country("Colombia","FFFF8080", 10));
+        countryMap.put("FF804040",new Country("Brazill","FF804040", 10));
+        countryMap.put("FF800000",new Country("Peru","FF05027", 10));
+        countryMap.put("FFFF0000",new Country("Argenitina","FFFF0000", 10));
         //Europe
-        countryMap.put("FF0000D5",new Contry("Iceland","FF0000D5", 10));
-        countryMap.put("FF003A75",new Contry("United Kingdom","FF003A75", 10));
-        countryMap.put("FF1591FF",new Contry("Sweden","FF1591FF", 10));
-        countryMap.put("FF00008A",new Contry("Western Russia","FF00008A", 10));
-        countryMap.put("FF0000FF",new Contry("Germany","FF0000FF", 10));
-        countryMap.put("FF0080FF",new Contry("Spain","FF0080FF", 10));
-        countryMap.put("FF004080",new Contry("Itlay","FF004080", 10));
+        countryMap.put("FF0000D5",new Country("Iceland","FF0000D5", 10));
+        countryMap.put("FF003A75",new Country("United Kingdom","FF003A75", 10));
+        countryMap.put("FF1591FF",new Country("Sweden","FF1591FF", 10));
+        countryMap.put("FF00008A",new Country("Western Russia","FF00008A", 10));
+        countryMap.put("FF0000FF",new Country("Germany","FF0000FF", 10));
+        countryMap.put("FF0080FF",new Country("Spain","FF0080FF", 10));
+        countryMap.put("FF004080",new Country("Itlay","FF004080", 10));
         //Asia
-        countryMap.put("FF006015",new Contry("Less Western Russia","FF006015", 10));
-        countryMap.put("FF008000",new Contry("Central Russia","FF008000", 10));
-        countryMap.put("FF009F9F",new Contry("Less Easter Russia","FF009F9F", 10));
-        countryMap.put("FF00954A",new Contry("Easter Russia","FF00954A", 10));
-        countryMap.put("FF80FF80",new Contry("Kazakhstan","FF80FF80", 10));
-        countryMap.put("FF80FF00",new Contry("South Russia","FF80FF00", 10));
-        countryMap.put("FF004000",new Contry("Mongolia","FF004000", 10));
-        countryMap.put("FF22B14C",new Contry("Middle East","FF22B14C", 10));
-        countryMap.put("FF008080",new Contry("South Asia","FF008080", 10));
-        countryMap.put("FF008050",new Contry("China","FF008050", 10));
-        countryMap.put("FF6AD500",new Contry("Japan","FF6AD500", 10));
-        countryMap.put("FF55FF55",new Contry("South East Asia","FF55FF55", 10));
+        countryMap.put("FF006015",new Country("Less Western Russia","FF006015", 10));
+        countryMap.put("FF008000",new Country("Central Russia","FF008000", 10));
+        countryMap.put("FF009F9F",new Country("Less Easter Russia","FF009F9F", 10));
+        countryMap.put("FF00954A",new Country("Easter Russia","FF00954A", 10));
+        countryMap.put("FF80FF80",new Country("Kazakhstan","FF80FF80", 10));
+        countryMap.put("FF80FF00",new Country("South Russia","FF80FF00", 10));
+        countryMap.put("FF004000",new Country("Mongolia","FF004000", 10));
+        countryMap.put("FF22B14C",new Country("Middle East","FF22B14C", 10));
+        countryMap.put("FF008080",new Country("South Asia","FF008080", 10));
+        countryMap.put("FF008050",new Country("China","FF008050", 10));
+        countryMap.put("FF6AD500",new Country("Japan","FF6AD500", 10));
+        countryMap.put("FF55FF55",new Country("South East Asia","FF55FF55", 10));
         //Africa
-        countryMap.put("FFFF915B",new Contry("North West Africa","FFFF915B", 10));//5
-        countryMap.put("FF9F4400",new Contry("North Africa","FF9F4400", 10));//3
-        countryMap.put("FFAE5700",new Contry("Central Africa","FFAE5700", 10));//1
-        countryMap.put("FFFF8000",new Contry("East Africa","FFFF8000", 10));//2
-        countryMap.put("FF804000",new Contry("South Asia","FF804000", 10));//6
-        countryMap.put("FFAE5700",new Contry("Madigascar","FFAE5700", 10));//4
+        countryMap.put("FFFF915B",new Country("North West Africa","FFFF915B", 10));//5
+        countryMap.put("FF9F4400",new Country("North Africa","FF9F4400", 10));//3
+        countryMap.put("FFAE5700",new Country("Central Africa","FFAE5700", 10));//1
+        countryMap.put("FFFF8000",new Country("East Africa","FFFF8000", 10));//2
+        countryMap.put("FF804000",new Country("South Asia","FF804000", 10));//6
+        countryMap.put("FFAE5700",new Country("Madigascar","FFAE5700", 10));//4
         //Austrailla 
-        countryMap.put("FF8000FF",new Contry("Indonesia","FF8000FF", 10));//2
-        countryMap.put("FFFF00FF",new Contry("East Indonesia","FFFF00FF", 10));//3
-        countryMap.put("FF800040",new Contry("East Australia","FF800040", 10));//4
-        countryMap.put("FF400040",new Contry("West Australia","FF400040", 10));//1
-        ////////////////////////////////////////////////////// countryMap.put("",new Contry("","FF", 10));
+        countryMap.put("FF8000FF",new Country("Indonesia","FF8000FF", 10));//2
+        countryMap.put("FFFF00FF",new Country("East Indonesia","FFFF00FF", 10));//3
+        countryMap.put("FF800040",new Country("East Australia","FF800040", 10));//4
+        countryMap.put("FF400040",new Country("West Australia","FF400040", 10));//1
+        ////////////////////////////////////////////////////// countryMap.put("",new Country("","FF", 10));
 
-    }
-
-    public void processKey(int code, boolean pressed){
     }
 
     public void mouseClicked(MouseEvent mouse) {

@@ -1,0 +1,9 @@
+FF806E00,Alaska
+FF503C27,North Canada
+FFFFFF00,West Canada
+FF949449,Central Canada
+FFFFE6980,East Canada
+FFFFDC00,Greenland
+FF505027,West US
+FF808000,East US
+FFFFFF80,Mexico

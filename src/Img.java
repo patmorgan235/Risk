@@ -21,6 +21,11 @@ public class Img
         img = loadImage(filename);
         setPosition(0,0);
     }
+    
+    public Img(Image bimg){
+        img = new ImageIcon(bimg);
+        setPosition(0,0);
+    }
 
     public void setPosition(int x, int y)
     {
@@ -67,13 +72,5 @@ public class Img
         return Cords;
     }
         
-    
-    public void setRGB(Point p,Color c){
-        BufferedImage image = getBufferedImage();
-        image.setRGB(p.x,p.y,c.getRGB());
-        
-        
-    
-    }
     
 }
