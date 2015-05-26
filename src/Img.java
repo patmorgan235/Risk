@@ -71,6 +71,12 @@ public class Img
             }
         return Cords;
     }
-        
     
+    public int getHeight(){
+        return img.getIconHeight();
+    }
+    
+    public int getWidth(){
+        return img.getIconWidth();
+    }
 }

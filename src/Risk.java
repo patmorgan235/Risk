@@ -9,13 +9,19 @@ public class Risk extends GameEngine{
     Img ColorMap ;//Map of Countries
     Img MagMap ;// Maginfied Img (bufferdImage.getSubimage()) of the area around the courser
 
+    int MapHeight = 1050;
+    int MapWidth = 576;
+
     //Player things
     Player[] players;
     int num_players = 2;
     int player = 0;
+    
     //Country HashMap
     HashMap<String, Country> countryMap = new HashMap<String, Country>();
     int curentColor;
+    
+    
     //misc Text Fields
     JTextField countryName = new JTextField(15);
     JTextField countryColor = new JTextField(10);
@@ -27,6 +33,7 @@ public class Risk extends GameEngine{
     JTextField playerInfo = new JTextField(30);
     JLabel currPlayer = new JLabel();
     JLabel attackingInfo = new JLabel();
+    JLabel atkUnits = new JLabel();
     JLabel defendingInfo = new JLabel();
 
     boolean Clicked = false;
@@ -45,7 +52,7 @@ public class Risk extends GameEngine{
         DispMap = new Img("RiskMap.png");
         ColorMap = new Img("RiskColorMap.png");
         DispMap.setPosition(0,0);
-
+        
         players = new Player[2];
 
         players[0] = new Player(0 , 20, Color.BLUE);
@@ -103,64 +110,71 @@ public class Risk extends GameEngine{
 
             updateTextFields(ctry);
 
-            //
+            //Map Magifier
             if(x > 50 && x < imagemap.getWidth()-50 && 
             y > 50 && y < imagemap.getHeight()-50){
-               
                 
-                MagMap = new Img(imagemap.getSubimage(mouse.x-25, mouse.y-25, 50,50).getScaledInstance(100,100,4));
-                MagMap.setPosition(950,476);
+                
+                MagMap = new Img(DispMap.getBufferedImage().getSubimage(mouse.x-25, mouse.y-25, 50,50).getScaledInstance(100,100,4));
+                MagMap.setPosition(MapHeight-100,MapWidth-100);
+
             }
             //sets attacking and defending counrties on click
-            if(Clicked == true){
-                if(players[player] != null ){
-                    if(players[player].units > 0 && ctry !=null){
+            if(Clicked == true && players[player] != null){
+                if(players[player].units > 0 && ctry !=null){
 
-                        Country a = ctry;
-                        a.setPlayer(player);
-                        a.setUnits(a.units+1);
-                        countryMap.remove(a.color);
-                        countryMap.put(a.color,a);
-                        players[player].units--;
-                        //contorlChanged = true;
-                        Clicked = false;
+                    Country a = ctry;
+                    a.setPlayer(player);
+                    a.setUnits(a.units+1);
+                    countryMap.remove(a.color);
+                    countryMap.put(a.color,a);
+                    players[player].units--;
+                    //contorlChanged = true;
+                    //playerInfo
 
-                    }else{
-                        if(attackCounrty == null){
-                            attackCounrty = countryMap.get(clr);
-                            if(attackCounrty != null && attackCounrty.getPlayer() == player){
-                                attackingInfo.setText("Attacking Country: "+ attackCounrty.name);
-                                defendingInfo.setText("Defending Country: ");
-                            }
+                }else{
+                    if(attackCounrty == null){
+                        attackCounrty = countryMap.get(clr);
+                        if(attackCounrty != null && attackCounrty.getPlayer() == player){
+                            attackingInfo.setText("Attacking Country: "+ attackCounrty.name);
+                            atkUnits.setText("Attacking Units: " + attackCounrty.units);
+                            defendingInfo.setText("Defending Country: ");
+                            
+                            
                         }
-                        else{
-                            defendCounrty = countryMap.get(clr);
-                            if(defendCounrty != null && defendCounrty.getPlayer() != player){
-                                defendingInfo.setText("Defending Country: "+ defendCounrty.name);//todo set both to null 
+                    }
+                    else{
+                        defendCounrty = countryMap.get(clr);
+                        if(defendCounrty != null && defendCounrty.getPlayer() != player){
+                            defendingInfo.setText("Defending Country: "+ defendCounrty.name);//todo set both to null 
 
-                            }else{
-                                resetAttack();
-                            }
+                        }else{
+                            resetAttack();
                         }
                     }
                 }
-            }
-            updateTextFields(ctry);
-
+                Clicked = false;
+                updateTextFields(ctry);
+            } 
         }
-        Clicked = false;
 
-        //dice roll for units lost
+        //Attacking logic
         if((attackCounrty!=null) && (defendCounrty!=null)){
 
             if(attackCounrty.units == 0){
                 playerInfo.setText(attackCounrty.name + " doesn't have any units to attack with!");
                 resetAttack();
             }else if(defendCounrty.units == 0){
-                playerInfo.setText(defendCounrty.name + " doesn't have any units to attack!");
+                countryMap.remove(defendCounrty.color);
+                defendCounrty.player = attackCounrty.player;
+                defendCounrty.units++;
+                countryMap.put(defendCounrty.color, defendCounrty);
+                
                 resetAttack();
             }else if(attackCounrty.player == defendCounrty.player){
-                playerInfo.setText("You can't attack your self!");
+                countryMap.remove(defendCounrty.color);
+                defendCounrty.units += 1;
+                countryMap.put(defendCounrty.color, defendCounrty);
                 resetAttack();
             }else if((defendCounrty.units > 0) && (attackCounrty.units > 0)){
                 attack();
@@ -205,6 +219,10 @@ public class Risk extends GameEngine{
         top.add(Box.createRigidArea(new Dimension(0,5)));
 
         top.add(attackingInfo);
+        
+        top.add(Box.createRigidArea(new Dimension(0,5)));
+        
+        top.add(atkUnits);
 
         top.add(Box.createRigidArea(new Dimension(0,5)));
 
@@ -217,6 +235,7 @@ public class Risk extends GameEngine{
         top.add(playerInfo);
 
         top.add(Box.createVerticalGlue());
+        
         addPanel(top, BorderLayout.EAST);
 
     }
@@ -243,13 +262,15 @@ public class Risk extends GameEngine{
     }
 
     public int isGameOver(){
-        int count = 0;
+        
+        int count1 = 0;
+        int count2 = 0;
         for(Country country: countryMap.values()){
-            if(country.player == 0){count++;}
-
+            if(country.player == 0){count1++;}
+            if(country.player == 1){count2++;}
         }
-        if(count == 0 ){return 1;}
-        else if(count == countryMap.size() ){return 0; }
+        if(count1 == 0 && count2 == countryMap.size()){return 1;}
+        else if(count1 == countryMap.size() && count2 == 0 ){return 0; }
         else{return -1;}
 
     }
@@ -258,22 +279,38 @@ public class Risk extends GameEngine{
         attackCounrty = null;
         defendCounrty = null;
         attackingInfo.setText("Attacking Country: ");
+        atkUnits.setText("Attacking Units: ");
         defendingInfo.setText("Defending Country: ");
     }
 
     public void attack(){
 
-        Country a = countryMap.get(defendCounrty.color);
+        
+        
+        defendCounrty.setUnits(defendCounrty.units - 1);
 
-        a.setUnits(defendCounrty.units - 1);
-        countryMap.remove(a.color);
-        countryMap.put(a.color,a);
+        countryMap.remove(defendCounrty.color);
+        countryMap.put(defendCounrty.color,defendCounrty);
         System.out.println("Units Left: "+ countryMap.get(defendCounrty.color).units);
         resetAttack();
     }
 
     public void draw(Graphics g){
-        if(DispMap != null)DispMap.draw(g);
+        if(DispMap != null){
+
+            DispMap.draw(g);
+            if(isGameOver() != -1){
+                g.setColor(Color.BLACK);
+                int h = DispMap.getHeight();
+                int w = DispMap.getWidth();
+                g.fillRect(w/4,h/4,w*3/4,h*3/4);
+                g.setFont(new Font("TimesRoman", Font.BOLD, 30));
+                g.setColor(Color.BLUE);
+                g.drawString("Player " + isGameOver() + " Won!",w/2, h/2);
+        
+            }
+
+        }
         if(MagMap != null)MagMap.draw(g);
 
         //if(contorlChanged)changeColors(g);
@@ -288,6 +325,7 @@ public class Risk extends GameEngine{
                     Player control = players[country.player];
                     g.setColor(control.color);
                     g.drawLine(p.x,p.y,p.x,p.y);
+                    
 
                     //drawpointfunc(p);
                 }else{}
@@ -305,7 +343,7 @@ public class Risk extends GameEngine{
         countryMap.put("FF503C27",new Country("North Canada","FF503C27", 10));
         countryMap.put("FFFFFF00",new Country("West Canada","FFFFFF00", 10));
         countryMap.put("FF949449",new Country("Central Canada","FF949449", 10));
-        countryMap.put("FFFFE6980",new Country("East Canada","FFFFE6980", 10));
+        countryMap.put("FFFFE680",new Country("East Canada","FFFFE680", 10));
         countryMap.put("FFFFDC00",new Country("Greenland","FFFFDC00", 10));
         countryMap.put("FF505027",new Country("West US","FF505027", 10));
         countryMap.put("FF808000",new Country("East US","FF808000", 10));
@@ -348,7 +386,7 @@ public class Risk extends GameEngine{
         countryMap.put("FFFF00FF",new Country("East Indonesia","FFFF00FF", 10));//3
         countryMap.put("FF800040",new Country("East Australia","FF800040", 10));//4
         countryMap.put("FF400040",new Country("West Australia","FF400040", 10));//1
-        ////////////////////////////////////////////////////// countryMap.put("",new Country("","FF", 10));
+        /////// countryMap.put("",new Country("","FF", 10));
 
     }
 
